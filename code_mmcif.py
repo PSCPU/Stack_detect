@@ -11,8 +11,21 @@ import copy
 from operator import sub,add
 pi = math.pi
 
-atom = ['N1', 'C2', 'N3', 'C4', 'C5', 'C6', 'N7', 'C8', 'N9', "C1'"] #List of all atoms whose coordinates should be extracted
-nuc = ['G', 'C', 'A', 'U', '1MA','A2M','M2G','H2U','7MG','2MU','OMG','5MC','OMC','PSU','4SU','5MU','OMU','2MG', '5AA','YYG'] #List of the 4 possible bases in an RNA molecule
+atom = ['N1', 'N2', 'C2', 'N3', 'N4', 'C4', 'C5', 'C6', 'N6', 'N7', 'C8', 'N9', "C1'", 'O2', "O2'", 'O4', 'O6'] #List of all atoms whose coordinates should be extracted
+
+adenine_atoms = ['N1', 'C2', 'N3', 'C4', 'N9', 'C8', 'N7', 'C5', 'C6', "C1'", "O2'", 'N6']
+guanine_atoms = ['N1', 'C2', 'N3', 'C4', 'N9', 'C8', 'N7', 'C5', 'C6', "C1'", "O2'", 'N2', 'O6']
+cytosine_atoms = ['N1', 'C2', 'N3', 'C4', 'C5', 'C6', "C1'", 'O2', 'N4', "O2'"]
+uracil_atoms = ['N1', 'C2', 'N3', 'C4', 'C5', 'C6', "C1'", 'O2', 'O4', "O2'"]
+
+adenine_nucs = ['A', '1MA', 'A2M', '5AA']
+guanine_nucs = ['G', 'M2G', 'G7M', '7MG', 'OMG', '2MG', 'YYG']
+cytosine_nucs = ['C', '5MC', 'OMC']
+uracil_nucs = ['U', 'H2U', 'PSU', '4SU', '5MU', 'OMU', '2MU']
+nuc = ['G', 'C', 'A', 'U', '1MA','A2M','M2G','H2U','7MG','2MU','OMG','5MC','OMC','PSU','4SU','5MU','OMU','2MG', '5AA','YYG', 'G7M'] #List of the 4 possible bases in an RNA molecule
+pur = ['A','G','1MA','A2M','M2G','G7M','OMG','2MG','5AA','YYG','7MG']
+pyri = ['C','U','H2U','5MC','OMC','PSU','4SU','5MU','OMU','2MU'] 
+
 atom5 = ['C4', 'C5', 'N7', 'C8', 'N9'] #List of the atoms in the 5 membered ring of a purine
 atom6 = ['N1', 'C2', 'N3', 'C4', 'C5', 'C6'] #List of the atoms in the 6 membered ring of a purine or a pyrimidine
 atom9 = ['N1', 'C2', 'N3', 'C4', 'N9', 'C8', 'N7', 'C5', 'C6']
@@ -22,9 +35,6 @@ ringRingIntr = {} #Stores the ring-ring stacking interactions along with the par
 pu9Ring = {} #Stores the purine 9-membered ring deatils - position vectors of each atoms, ring center, R1, R2 and normal(N). key --> <nucleotide num>_<nucleotide name>_<chain name>_9
 baseBaseStepParams = {} #Stores the base-base stacking interaction step parameters - shift, slide, rise, twist, roll, tilt
 processed = [] #Stores the visited pairs of nucleotides
-pur = ['A','G','1MA','A2M','M2G','G7M','OMG','2MG','5AA','YYG','7MG']
-pyri = ['C','U','H2U','5MC','OMC','PSU','4SU','5MU','OMU','2MU'] 
-#Digitize the numbers to 4 digits
 def digitize(num):
 	if len(num) == 1:
 		num = '000' + num
@@ -82,7 +92,7 @@ def project(v,n): #Project a vector (v) on a plane with normal (n). Projection v
 Begining of Part1 - Extracting Nucleotides from PDB
 -------------------------------------------------------------------------------------------------------------------------------
 """
-print ("Extracting PDB....")
+print("Extracting PDB....")
 file_name = sys.argv[1]
 file_extn = file_name.split('.')[-1].lower()
 fo = open(file_name,'r+')
@@ -114,13 +124,19 @@ elif (file_extn=="cif"):
 	fo.close()	
 
 #If incomplete nucleotides are present in the pdb/cif file then delete them.
-for key in nucAtoms.keys():
+for key in list(nucAtoms.keys()):
 	nuc = key.split('_')[1]
-	if nuc in pur:
-		if len(nucAtoms[key])!=10:
+	if nuc in adenine_nucs:
+		if len(nucAtoms[key])<len(adenine_atoms):
 			del nucAtoms[key]
-	elif nuc in pyri:
-		if len(nucAtoms[key])!=7:
+	elif nuc in guanine_nucs:
+		if len(nucAtoms[key])<len(guanine_atoms):
+			del nucAtoms[key]
+	elif nuc in cytosine_nucs:
+		if len(nucAtoms[key])<len(cytosine_atoms):
+			del nucAtoms[key]
+	elif nuc in uracil_nucs:
+		if len(nucAtoms[key])<len(uracil_atoms):
 			del nucAtoms[key]
 
 #Loop to calucate the center of the ring, R1, R2 and normal vector to define the mean plane.
