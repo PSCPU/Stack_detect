@@ -4,7 +4,9 @@ A python code for detecting stacking interaction in RNA structures The code work
 
 2.Unzip the "utils" folder and keep it in main folder 
 
-3.Create a subfolder (eg PDBfiles) and store the target PDB structurs into it. 
+3.Create a subfolder (eg PDBfiles) and store the target PDB structurs into it.
+
+3. If numpy is not installed in your python, get it done by using the commant "pip install numpy" in the terminal or command promt.
 
 4.In the terminal run the code by >>>Python run_stacking.py PDBfile/ This will create files for each PDB structure in the PDBfiles folder. 
 
